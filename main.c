@@ -85,12 +85,7 @@ void generateMaze(char *maze, int width, int height) {
         }
     }
 
-    /* Replace the entry and exit. */
-    maze[(height - 2) * width + (width - 2)] = 2;
-    maze[(height - 1) * width + (width - 2)] = 2;
-
-    /* Set up the entry and exit. */
-    maze[0 * width + 1] = 3;
+    maze[0 * width + 1] = 2;
     maze[(height - 1) * width + (width - 2)] = 3;
 
 }
@@ -102,7 +97,6 @@ void solveMaze(char *maze, int width, int height) {
     int dx, dy;
     int forward;
 
-    /* Remove the entry and exit. */
     maze[0 * width + 1] = 1;
     maze[(height - 1) * width + (width - 2)] = 1;
 
@@ -145,46 +139,6 @@ void solveMaze(char *maze, int width, int height) {
 
 }
 
-/*int main(int argc,char *argv[]) {
-
-    int width, height;
-    char *maze;
-
-    if(argc != 3 && argc != 4) {
-        printf("usage: maze <width> <height> [s]\n");
-        exit(EXIT_FAILURE);
-    }
-
-    width = atoi(argv[1]) * 2 + 3;
-    height = atoi(argv[2]) * 2 + 3;
-    if(width < 7 || height < 7) {
-        printf("error: illegal maze size\n");
-        exit(EXIT_FAILURE);
-    }
-    if(argc == 4 && argv[3][0] != 's') {
-        printf("error: invalid argument\n");
-        exit(EXIT_FAILURE);
-    }
-
-    maze = (char*)malloc(width * height * sizeof(char));
-    if(maze == NULL) {
-        printf("error: not enough memory\n");
-        exit(EXIT_FAILURE);
-    }
-
-    generateMaze(maze, width, height);
-    showMaze(maze, width, height);
-
-    if(argc == 4) {
-        solveMaze(maze, width, height);
-        showMaze(maze, width, height);
-    }
-
-    free(maze);
-    exit(EXIT_SUCCESS);
-
-} */
-
 void movePlayer(char *maze, int *x, int *y, int width, int height, int dx, int dy) {
     switch (maze[(*y + dy) * width + (*x + dx)]) {
         case 1: break;
@@ -194,7 +148,7 @@ void movePlayer(char *maze, int *x, int *y, int width, int height, int dx, int d
             *y += dy;
             break;
         default:
-            maze[(*y) * width + (*x)] = 2;
+            maze[(*y + dy) * width + (*x + dx)] = 2;
             *x += dx;
             *y += dy;
             break;
@@ -208,53 +162,44 @@ void startGame(int width, int height) {
     width = width * 2 + 3;
     height = height * 2 + 3;
 
-    maze = (char*)malloc(width * height * sizeof(char));
-    if(maze == NULL) {
+    maze = (char *) malloc(width * height * sizeof(char));
+    if (maze == NULL) {
         printf("error: not enough memory\n");
         exit(EXIT_FAILURE);
     }
 
     generateMaze(maze, width, height);
     showMaze(maze, width, height);
-    printf("Do you want us to solve the maze? [y/n] ");
-    char solve = 'n';
-    scanf("%s", &solve);
-    if (solve == 'y' || solve == 'Y') {
-        solveMaze(maze, width, height);
-    } else {
-        int dir, count;
-        int x, y;
-        int dx, dy;
-        int forward;
 
-        forward = 1;
-        dir = 0;
-        count = 0;
-        x = 1;
-        y = 1;
-        while (x != width - 2 || y != height - 2) {
-            if (getchar() == '\033') {
-                getchar();
-                switch (getchar()) {
-                    case 'A':
-                        movePlayer(maze, &x, &y, width, height, 0, -1);
-                        break;
-                    case 'B':
-                        movePlayer(maze, &x, &y, width, height, 0, 1);
-                        break;
-                    case 'C':
-                        movePlayer(maze, &x, &y, width, height, 1, 0);
-                        break;
-                    case 'D':
-                        movePlayer(maze, &x, &y, width, height, -1, 0);
-                        break;
-                    default:
-                        printf("please use the arrow keys!");
-                        break;
-                }
+    int x, y;
+
+    x = 1;
+    y = 0;
+    while (x != width - 2 || y != height - 2) {
+        if (getchar() == '\033') {
+            getchar();
+            switch (getchar()) {
+                case 'A':
+                    movePlayer(maze, &x, &y, width, height, 0, -1);
+                    break;
+                case 'B':
+                    movePlayer(maze, &x, &y, width, height, 0, 1);
+                    break;
+                case 'C':
+                    movePlayer(maze, &x, &y, width, height, 1, 0);
+                    break;
+                case 'D':
+                    movePlayer(maze, &x, &y, width, height, -1, 0);
+                    break;
+                default:
+                    printf("please use the arrow keys!");
+                    break;
             }
         }
     }
+
+    printf("Wow, you solved the maze! Press any key to exit");
+    getch();
 
     endwin();
     free(maze);
@@ -266,7 +211,6 @@ void main() {
     printf("Enter mode (1, 2 or 3): ");
     int mode = 0;
     scanf("%d", &mode);
-
 
     switch(mode) {
         case 1: startGame(10, 10); break;
